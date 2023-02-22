@@ -1,0 +1,44 @@
+{
+  "name": "zod-mapper",
+  "version": "0.0.0",
+  "description": "Tiny library to easily create Zod based data mappers",
+  "repository": {
+    "url": "https://github.com/ivan-dalmet/zod-mapper"
+  },
+  "author": {
+    "name": "Ivan Dalmet",
+    "url": "https://github.com/ivan-dalmet"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "exports": {
+    "require": "./dist/index.js",
+    "import": "./dist/index.mjs"
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build-fast": "tsup src/index.ts --format cjs,esm --external zod",
+    "build": "pnpm run build-fast -- --dts-resolve",
+    "dev": "vitest",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm run build"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "zod": "3.20.6"
+  },
+  "devDependencies": {
+    "@egoist/prettier-config": "1.0.0",
+    "prettier": "2.8.4",
+    "tsup": "6.6.3",
+    "typescript": "4.9.5",
+    "vitest": "0.28.5",
+    "zod": "3.20.6"
+  }
+}
