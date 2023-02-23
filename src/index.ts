@@ -38,18 +38,14 @@ export const createMapper =
     } as const
   }
 
-export const createZodMapper = <
-  Input,
-  TransformedInput,
-  Schema extends z.Schema,
->({
+export const createZodMapper = <TransformedInput, Schema extends z.Schema>({
   schema,
   transformIn,
   transformOut,
 }: {
   schema: Schema
   transformIn: (data: z.infer<Schema>) => TransformedInput
-  transformOut: (data: TransformedInput) => Input
+  transformOut: (data: TransformedInput) => z.infer<Schema>
 }) => {
   return createMapper<z.infer<Schema>>()({
     transformIn: (data) => {

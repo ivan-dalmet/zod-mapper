@@ -135,7 +135,7 @@ test("safe-error", () => {
   const myMapper = createZodMapper({
     schema: z.string(),
     transformIn: (data) => Number(data),
-    transformOut: (data) => data,
+    transformOut: (data) => data as any,
   })
 
   const internal = myMapper.safeIn(2 as any)
