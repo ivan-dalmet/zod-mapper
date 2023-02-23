@@ -23,8 +23,7 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build-fast": "tsup src/index.ts --format cjs,esm --external zod",
-    "build": "pnpm run build-fast -- --dts-resolve",
+    "build": "tsup src/index.ts --format cjs,esm --external zod --dts-resolve",
     "dev": "vitest",
     "test": "vitest run",
     "prepublishOnly": "pnpm run build"
