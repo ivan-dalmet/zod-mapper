@@ -16,13 +16,13 @@ export const safeTransform = <Callback extends (data: Data) => any, Data>(
 }
 
 export const createMapper =
-  <Input>() =>
+  <Input, Output = Input>() =>
   <TransformedInput>({
     transformIn,
     transformOut,
   }: {
     transformIn: (data: Input) => TransformedInput
-    transformOut: (data: TransformedInput) => Input
+    transformOut: (data: TransformedInput) => Output
   }) => {
     const mapperIn = (data: Input) => {
       return transformIn(data)
@@ -38,23 +38,29 @@ export const createMapper =
     } as const
   }
 
-export const createZodMapper = <TransformedInput, Schema extends z.Schema>({
+export const createZodMapper = <
+  TransformedInput,
+  Schema extends z.Schema,
+  SchemaOut extends z.Schema = Schema,
+>({
   schema,
+  schemaOut,
   transformIn,
   transformOut,
 }: {
   schema: Schema
+  schemaOut?: SchemaOut
   transformIn: (data: z.infer<Schema>) => TransformedInput
-  transformOut: (data: TransformedInput) => z.infer<Schema>
+  transformOut: (data: TransformedInput) => z.infer<SchemaOut>
 }) => {
-  return createMapper<z.infer<Schema>>()({
+  return createMapper<z.infer<Schema>, z.infer<SchemaOut>>()({
     transformIn: (data) => {
       const parsedInput = schema.parse(data)
       return transformIn(parsedInput)
     },
     transformOut: (data) => {
       const transformedOutput = transformOut(data)
-      return schema.parse(transformedOutput)
+      return (schemaOut ?? schema).parse(transformedOutput)
     },
   })
 }

@@ -144,3 +144,16 @@ test("safe-error", () => {
   assert.equal(internal.success, false)
   assert.equal(external.success, false)
 })
+
+test("basic-diff-output", () => {
+  const myMapper = createZodMapper({
+    schema: z.string(),
+    schemaOut: z.boolean(),
+    transformIn: (data) => Number(data),
+    transformOut: (data) => Boolean(data),
+  })
+  const internal = myMapper.in("2")
+  const external = myMapper.out(internal)
+  assert.equal(internal, 2)
+  assert.equal(external, true)
+})

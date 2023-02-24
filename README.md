@@ -72,6 +72,28 @@ if (!internal.success) {
 }
 ```
 
+## Output schema
+
+If the output schema is not same as the input, you can provide a `schemaOut`.
+
+```ts
+import { z } from 'zod';
+import { createZodMapper } from 'zod-mapper';
+
+const myMapper = createZodMapper({
+  schema: z.string(),
+
+  // Specify a different schema for the output
+  schemaOut: z.boolean(),
+
+  transformIn: (data) => Number(data),
+  transformOut: (data) => Boolean(data),
+});
+
+const internal = myMapper.in('2') // 2
+const external = myMapper.out(internal) // true
+```
+
 ## Real life example
 
 ```ts
