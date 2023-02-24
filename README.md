@@ -34,10 +34,10 @@ const myMapper = createZodMapper({
 });
 
 // Pass EXTERNAL data to the `in()` method to get INTERNAL formatted data.
-const internal = myMapper.in('2') // 2
+const internal = myMapper.in('2'); // 2
 
 // Pass INTERNAL data to the `out()` method to get the EXTERNAL formatted data.
-const external = myMapper.out(internal) // '2'
+const external = myMapper.out(internal); // '2'
 ```
 
 ## Safe transform
@@ -45,8 +45,8 @@ const external = myMapper.out(internal) // '2'
 If you don't want your mapper to throw errors when transformation fails, use `.safeIn` and `.safeOut` instead of `in` and `out`. This method returns an object containing either the successfully parsed data or a error containing information about the transformation problems.
 
 ```ts
-myMapper.safeIn('2')
-myMapper.safeOut(2)
+myMapper.safeIn('2');
+myMapper.safeOut(2);
 ```
 
 The result is a discriminated union, so you can handle errors very conveniently
@@ -62,13 +62,13 @@ const myMapper = createZodMapper({
   transformOut: (data) => String(data),
 });
 
-const internal = myMapper.safeIn('2')
+const internal = myMapper.safeIn('2');
 if (!internal.success) {
   // handle error then return
-  internal.error
+  internal.error;
 } else {
   // do something
-  internal.data
+  internal.data;
 }
 ```
 
@@ -90,8 +90,8 @@ const myMapper = createZodMapper({
   transformOut: (data) => Boolean(data),
 });
 
-const internal = myMapper.in('2') // 2
-const external = myMapper.out(internal) // true
+const internal = myMapper.in('2'); // 2
+const external = myMapper.out(internal); // true
 ```
 
 ## Real life example
@@ -100,57 +100,76 @@ const external = myMapper.out(internal) // true
 import { z } from 'zod';
 import { createZodMapper } from 'zod-mapper';
 
-/* Example data */
-const exampleFetchedUsersList = [
+/* Example fetched users from API */
+const exampleFetchedUserList = [
   {
-    firstName: "John",
-    lastName: "Doe",
-    noSo_good_Label: "something",
+    firstName: 'John',
+    lastName: 'Doe',
+    noSo_good_Label: 'something',
   },
   {
-    firstName: "Jeanne",
-    lastName: "Doe",
+    firstName: 'Jeanne',
+    lastName: 'Doe',
   },
-]
+];
 
-/*  1. Create a mapper */
-const userMapper = createZodMapper({
-  // Zod schema for EXTERNAL data
-  schema: z.object({
+/* 1. Create a Zod schema for a user */
+const zUser = () =>
+  z.object({
     firstName: z.string(),
     lastName: z.string(),
     noSo_good_Label: z.string().optional(),
-  }),
+  });
 
-  // Transform Data from EXTERNAL to INTERNAL
+/* 2. Create a Zod schema for the users list */
+const zUserList = () => z.array(zUser());
+
+/* 3. Create a user mapper */
+const userMapper = createZodMapper({
+  // Zod schema for EXTERNAL data
+  schema: zUser(),
+
+  // Transform api user to internal user
   transformIn: ({ noSo_good_Label, ...data }) => ({
     ...data,
     fullName: `${data.firstName} ${data.lastName}`,
     goodLabel: noSo_good_Label,
   }),
 
-  // Transform Data from INTERNAL to EXTERNAL
+  // Transform internal user to api user
   transformOut: ({ goodLabel, ...data }) => ({
     ...data,
     noSo_good_Label: goodLabel,
   }),
-})
+});
+
+/* 4. Create a user list mapper */
+const userListMapper = createZodMapper({
+  // Zod schema for EXTERNAL data
+  schema: zUserList(),
+
+  // Transform api users list to internal users list
+  transformIn: (data) => data.map(userMapper.in),
+
+  // Transform internal users list to api users list
+  transformOut: (data) => data.map(userMapper.out),
+});
 
 /**
- *  2. Use the mapper to transform the data
- * from the  EXTERNAL format to the INTERNAL format.
+ *  5. Use the mapper to transform the data
+ * from the api format to the internal format.
  *
  * ℹ️ Each user will HAVE the `fullName` property and the `goodLabel`
  */
-const users = exampleFetchedUsersList.map(userMapper.in)
+const users = userListMapper.in(exampleFetchedUserList);
 
 /**
- *  3. Use the mapper to transform the data
- * from the INTERNAL format to the EXTERNAL format.
+ *  6. Use the mapper to transform the data
+ * back from the internal format to the api format.
  *
  * ℹ️ Each user will NOT HAVE the `fullName` property and will HAVE the `noSo_good_Label`
  */
-const payload = users.map(userMapper.out)
+const payload = userListMapper.out(users);
 ```
 
 ## License
